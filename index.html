@@ -5,168 +5,245 @@
   <title>QR Code Generator</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <style>
+    :root {
+      --primary: #0078d4;
+      --background: #f4f7f9;
+      --card: #ffffff;
+      --text: #333333;
+      --radius: 12px;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
     body {
-      font-family: sans-serif;
-      background: #f5f5f5;
+      margin: 0;
+      padding: 0;
+      font-family: "Segoe UI", Roboto, sans-serif;
+      background: var(--background);
+      color: var(--text);
       display: flex;
       justify-content: center;
       align-items: center;
-      height: 100vh;
-      margin: 0;
+      min-height: 100vh;
     }
-    .app {
-      background: white;
-      padding: 20px;
-      border-radius: 10px;
-      box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+
+    .container {
+      background: var(--card);
+      border-radius: var(--radius);
+      box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+      padding: 2rem;
+      width: 100%;
+      max-width: 420px;
+    }
+
+    h1 {
       text-align: center;
-      max-width: 400px;
-      width: 100%;
+      margin-bottom: 1.5rem;
     }
-    input, select, button {
-      margin-top: 10px;
-      width: 100%;
-      padding: 10px;
-      font-size: 1em;
-      border-radius: 5px;
-      border: 1px solid #ccc;
-    }
-    canvas {
-      margin-top: 15px;
-    }
-    #download {
+
+    label {
+      font-weight: 600;
       display: block;
-      margin-top: 10px;
+      margin-top: 1rem;
+      margin-bottom: 0.5rem;
+    }
+
+    input, select, button {
+      width: 100%;
+      padding: 0.7rem;
+      font-size: 1rem;
+      border: 1px solid #ccc;
+      border-radius: var(--radius);
+      margin-bottom: 1rem;
+    }
+
+    button {
+      background: var(--primary);
+      color: white;
+      border: none;
+      cursor: pointer;
+      transition: background 0.3s ease;
+    }
+
+    button:hover {
+      background: #005a9e;
+    }
+
+    canvas {
+      display: block;
+      margin: 1.5rem auto 1rem auto;
+    }
+
+    #download {
+      display: none;
+      text-align: center;
+      padding: 0.75rem;
       background: #28a745;
       color: white;
       text-decoration: none;
-      padding: 10px;
-      border-radius: 5px;
       font-weight: bold;
+      border-radius: var(--radius);
+      margin-top: 0.5rem;
+    }
+
+    #colors {
+      display: flex;
+      gap: 0.5rem;
+    }
+
+    #colors input {
+      flex: 1;
+    }
+
+    @media (max-width: 480px) {
+      .container {
+        margin: 1rem;
+        padding: 1.5rem;
+      }
     }
   </style>
 </head>
 <body>
-<div class="app">
-  <h2 id="title">QR Code Generator</h2>
-  <select id="lang">
-    <option value="en">English</option>
-    <option value="uk">Українська</option>
-    <option value="pl">Polski</option>
-    <option value="de">Deutsch</option>
-    <option value="zh">中文</option>
-  </select>
-  <input type="text" id="text" placeholder="Enter text or URL..." />
-  <select id="style">
-    <option value="solid">Solid</option>
-    <option value="gradient">Gradient</option>
-  </select>
-  <input type="color" id="color1" value="#000000" />
-  <input type="color" id="color2" value="#000000" />
-  <button onclick="generateQRCode()"></button>
-  <canvas id="canvas" width="256" height="256"></canvas>
-  <a id="download" href="#" download="qrcode.png" style="display:none"></a>
-</div>
+  <div class="container">
+    <h1 id="title">QR Code Generator</h1>
 
-<script src="https://cdn.jsdelivr.net/npm/qrcode-generator/qrcode.min.js"></script>
-<script>
-  const translations = {
-    en: {
-      title: "QR Code Generator",
-      placeholder: "Enter text or URL...",
-      button: "Generate QR Code",
-      download: "Download QR Code"
-    },
-    uk: {
-      title: "Генератор QR-кодів",
-      placeholder: "Введіть текст або URL...",
-      button: "Згенерувати QR-код",
-      download: "Завантажити QR-код"
-    },
-    pl: {
-      title: "Generator kodów QR",
-      placeholder: "Wpisz tekst lub URL...",
-      button: "Wygeneruj kod QR",
-      download: "Pobierz kod QR"
-    },
-    de: {
-      title: "QR-Code Generator",
-      placeholder: "Text oder URL eingeben...",
-      button: "QR-Code generieren",
-      download: "QR-Code herunterladen"
-    },
-    zh: {
-      title: "二维码生成器",
-      placeholder: "输入文本或网址...",
-      button: "生成二维码",
-      download: "下载二维码"
-    }
-  };
+    <label for="lang">Language:</label>
+    <select id="lang">
+      <option value="en">English</option>
+      <option value="uk">Українська</option>
+      <option value="pl">Polski</option>
+      <option value="de">Deutsch</option>
+      <option value="zh">中文</option>
+    </select>
 
-  const langSelect = document.getElementById('lang');
-  const title = document.getElementById('title');
-  const textInput = document.getElementById('text');
-  const button = document.querySelector('button');
-  const download = document.getElementById('download');
+    <label for="text">Text or URL:</label>
+    <input type="text" id="text" placeholder="Enter something..." />
 
-  langSelect.addEventListener('change', () => {
-    const lang = langSelect.value;
-    const t = translations[lang];
-    title.textContent = t.title;
-    textInput.placeholder = t.placeholder;
-    button.textContent = t.button;
-    download.textContent = t.download;
-  });
+    <label for="style">Design Style:</label>
+    <select id="style">
+      <option value="solid">Solid Color</option>
+      <option value="gradient">Gradient</option>
+    </select>
 
-  langSelect.dispatchEvent(new Event('change'));
+    <div id="colors">
+      <input type="color" id="color1" value="#000000" title="Color 1" />
+      <input type="color" id="color2" value="#000000" title="Color 2" />
+    </div>
 
-  function generateQRCode() {
-    const text = textInput.value.trim();
-    const style = document.getElementById('style').value;
-    const color1 = document.getElementById('color1').value;
-    const color2 = document.getElementById('color2').value;
-    const canvas = document.getElementById('canvas');
-    const ctx = canvas.getContext('2d');
+    <button onclick="generateQRCode()" id="generateBtn">Generate QR Code</button>
 
-    if (!text) return alert("Please enter text.");
+    <canvas id="canvas" width="256" height="256"></canvas>
+    <a id="download" href="#" download="qrcode.png">Download QR Code</a>
+  </div>
 
-    // Create QR code
-    const qr = qrcode(0, 'H');
-    qr.addData(text);
-    qr.make();
+  <script src="https://cdn.jsdelivr.net/npm/qrcode-generator/qrcode.min.js"></script>
+  <script>
+    const translations = {
+      en: {
+        title: "QR Code Generator",
+        placeholder: "Enter text or URL...",
+        button: "Generate QR Code",
+        download: "Download QR Code",
+        text: "Text or URL:",
+        style: "Design Style:"
+      },
+      uk: {
+        title: "Генератор QR-кодів",
+        placeholder: "Введіть текст або URL...",
+        button: "Згенерувати QR-код",
+        download: "Завантажити QR-код",
+        text: "Текст або посилання:",
+        style: "Стиль оформлення:"
+      },
+      pl: {
+        title: "Generator kodów QR",
+        placeholder: "Wpisz tekst lub URL...",
+        button: "Wygeneruj kod QR",
+        download: "Pobierz kod QR",
+        text: "Tekst lub URL:",
+        style: "Styl projektu:"
+      },
+      de: {
+        title: "QR-Code Generator",
+        placeholder: "Text oder URL eingeben...",
+        button: "QR-Code generieren",
+        download: "QR-Code herunterladen",
+        text: "Text oder URL:",
+        style: "Design-Stil:"
+      },
+      zh: {
+        title: "二维码生成器",
+        placeholder: "输入文本或网址...",
+        button: "生成二维码",
+        download: "下载二维码",
+        text: "文字或网址：",
+        style: "设计样式："
+      }
+    };
 
-    const tileW = canvas.width / qr.getModuleCount();
-    const tileH = canvas.height / qr.getModuleCount();
+    const langSelect = document.getElementById('lang');
+    const title = document.getElementById('title');
+    const textInput = document.getElementById('text');
+    const button = document.getElementById('generateBtn');
+    const download = document.getElementById('download');
+    const labelText = document.querySelector('label[for="text"]');
+    const labelStyle = document.querySelector('label[for="style"]');
 
-    // Clear
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    langSelect.addEventListener('change', () => {
+      const t = translations[langSelect.value];
+      title.textContent = t.title;
+      textInput.placeholder = t.placeholder;
+      button.textContent = t.button;
+      download.textContent = t.download;
+      labelText.textContent = t.text;
+      labelStyle.textContent = t.style;
+    });
 
-    // Fill background white
-    ctx.fillStyle = "#ffffff";
-    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    langSelect.dispatchEvent(new Event('change'));
 
-    // Create gradient if selected
-    let fillStyle = color1;
-    if (style === 'gradient') {
-      const grad = ctx.createLinearGradient(0, 0, canvas.width, canvas.height);
-      grad.addColorStop(0, color1);
-      grad.addColorStop(1, color2);
-      fillStyle = grad;
-    }
+    function generateQRCode() {
+      const text = textInput.value.trim();
+      const style = document.getElementById('style').value;
+      const color1 = document.getElementById('color1').value;
+      const color2 = document.getElementById('color2').value;
+      const canvas = document.getElementById('canvas');
+      const ctx = canvas.getContext('2d');
 
-    // Draw QR modules
-    for (let r = 0; r < qr.getModuleCount(); r++) {
-      for (let c = 0; c < qr.getModuleCount(); c++) {
-        if (qr.isDark(r, c)) {
-          ctx.fillStyle = fillStyle;
-          ctx.fillRect(c * tileW, r * tileH, tileW, tileH);
+      if (!text) return alert("Please enter text.");
+
+      const qr = qrcode(0, 'H');
+      qr.addData(text);
+      qr.make();
+
+      const tileW = canvas.width / qr.getModuleCount();
+      const tileH = canvas.height / qr.getModuleCount();
+
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      ctx.fillStyle = "#ffffff";
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+      let fillStyle = color1;
+      if (style === 'gradient') {
+        const grad = ctx.createLinearGradient(0, 0, canvas.width, canvas.height);
+        grad.addColorStop(0, color1);
+        grad.addColorStop(1, color2);
+        fillStyle = grad;
+      }
+
+      for (let r = 0; r < qr.getModuleCount(); r++) {
+        for (let c = 0; c < qr.getModuleCount(); c++) {
+          if (qr.isDark(r, c)) {
+            ctx.fillStyle = fillStyle;
+            ctx.fillRect(c * tileW, r * tileH, tileW, tileH);
+          }
         }
       }
-    }
 
-    download.href = canvas.toDataURL();
-    download.style.display = 'block';
-  }
-</script>
+      download.href = canvas.toDataURL();
+      download.style.display = 'block';
+    }
+  </script>
 </body>
 </html>
